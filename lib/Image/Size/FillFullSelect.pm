@@ -10,11 +10,11 @@ Image::Size::FillFullSelect - Choose wether a image fill setting for a image sho
 
 =head1 VERSION
 
-Version 0.0.0
+Version 0.0.1
 
 =cut
 
-our $VERSION = '0.0.0';
+our $VERSION = '0.0.1';
 
 
 =head1 SYNOPSIS
