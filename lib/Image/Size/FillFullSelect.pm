@@ -10,11 +10,11 @@ Image::Size::FillFullSelect - Choose wether a image fill setting for a image sho
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.1.0
 
 =cut
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 
 =head1 SYNOPSIS
@@ -48,7 +48,7 @@ sub new {
 		$hash={maxdiff=>$_[1]};
 	}else{
 		$hash={maxdiff=>".2"};
-	};
+	}
 
 	bless $hash;
 	return $hash;
@@ -58,17 +58,28 @@ sub new {
 
 This makes the selection between the two.
 
-There is one required arguement and one optional arguement. The first
-is the page to the image and it is required. The second is the max
-difference between the two sides and it is optional. If it is
-not defined, the default is used.
+It takes two arguements and three optional ones.
+
+The first arguement is the image.
+
+The second is the max difference when the size of
+the picture is used to devide each other.
+
+The third is continuation of the second, but defaults
+what ever the second is if it is not specified.
+
+The fourth is comparative X resolution to use.
+
+The fifth is the comparative Y resolution to use.
 
 Upon a error, it returns undef.
+
+    my $filltype=$iffs->select($image, '.2', undef, '800', '600');
 
 =cut
 
 sub select{ #arg1=the image to use  arg2=the max difference
-	my ($self, $image, $maxdiff)=@_;
+	my ($self, $image, $maxdiff, $maxdiff2, $xres, $yres)=@_;
 	my ($imageX, $imageY)=imgsize("$image");
 
 	#use the default if it is defined.
@@ -81,17 +92,33 @@ sub select{ #arg1=the image to use  arg2=the max difference
 		return undef;
 	};
 	#this needs done twice since one direction only can't be trusted...
-	my $ixydiff1=$imageX/$imageY - 1; #gets the scale difference...
-	$ixydiff1=abs($ixydiff1); #make the scale differ into a absolute value for easier use
-	my $ixydiff2=$imageY/$imageX - 1; #gets the scale in the other directions...
-	$ixydiff2=abs($ixydiff2); #abs the other one also
+	my $ixydiff1;
+	my $ixydiff2;
+	if (!defined($xres)) {
+		$ixydiff1=$imageX/$imageY - 1; #gets the scale difference...
+		$ixydiff1=abs($ixydiff1); #make the scale differ into a absolute value for easier use
+		$ixydiff2=$imageY/$imageX - 1; #gets the scale in the other directions...
+		$ixydiff2=abs($ixydiff2); #abs the other one also
+	}else {
+		$ixydiff1=$xres/$imageY - 1; #gets the scale difference...
+		$ixydiff1=abs($ixydiff1); #make the scale differ into a absolute value for easier use
+		$ixydiff2=$yres/$imageX - 1; #gets the scale in the other directions...
+		$ixydiff2=abs($ixydiff2); #abs the other one also		
+	}
 
-	if ($ixydiff1 <= $maxdiff || $ixydiff2 <= $maxdiff){
+	if (!defined($maxdiff2)) {
+		if ($ixydiff1 <= $maxdiff || $ixydiff2 <= $maxdiff){
+			return "fill";
+		}else{
+			return "full";
+		}
+	}
+	if ($ixydiff1 <= $maxdiff || $ixydiff2 <= $maxdiff2){
 		return "fill";
 	}else{
 		return "full";
-	};
-};
+	}
+}
 
 
 =head1 AUTHOR
